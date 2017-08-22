@@ -1,5 +1,4 @@
 #!/bin/sh
-# Script version 1.7.0 - 14.08.2017
 # Script provided by Tufin, Nicolas Wehmeyer, Professional Services Consultant
 
 ###							 ###
