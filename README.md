@@ -10,7 +10,7 @@ Simply download the latet copy of the backup wizard and place it on your Tufin S
 2. Place it in the following directory on your Tufin Server: **/usr/local/bin/**
 3. Make sure to set the correct owner of the script: **chown root:root /usr/local/bin/backup-wizard.sh**
 4. Also make sure to set the correct permissions: **chmod 750 /usr/local/bin/backup-wizard.sh**
-5. **Finally:** Run the wizard and follow the instructions: **/usr/local/bin/backup-wizard.sh**
+5. **Finally:** Run the wizard and follow the instructions: **./usr/local/bin/backup-wizard.sh**
 
 # Supported versions
 The script has been verified to work with TufinOS 2.13 / 2.14 and TOS R16-4 up to R17-1.
