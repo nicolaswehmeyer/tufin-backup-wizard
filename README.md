@@ -19,7 +19,7 @@ Simply download the latet copy of the backup wizard and place it on your Tufin S
 4. Also make sure to set the correct permissions: **chmod 750 /usr/local/bin/backup-wizard.sh**
 5. **Finally:** Run the wizard and follow the instructions: **./usr/local/bin/backup-wizard.sh**
 
-Btw: The wizard will create a configuration file after everything was setup initially. THe configuration file is located at /usr/local/bin/backup-wizard.cfg and is only readable for the root-user. Passwords for remote backups are also stored within this file.
+Note: The wizard will create a configuration file after everything was setup initially. The configuration file is located at /usr/local/bin/backup-wizard.cfg and is only readable for the root-user. Passwords for remote backups are also stored within this file.
 
 # Supported versions
 The script has been verified to work with TufinOS 2.13 / 2.14 and TOS R16-4 up to R17-1.
