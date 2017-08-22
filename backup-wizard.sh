@@ -7,8 +7,6 @@ CFG_FILE_LOCATION="/usr/local/bin/backup-wizard.cfg"
 ##### When needed, change the config file location here #####
 ###							  ##
 
-### Possible options to alter the functionality of this script
-
 ### We need some additional values for our script to run nicely
 export PATH="${PATH}:/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin"
 DATE=`/bin/date +%F`
@@ -161,6 +159,7 @@ initialize_backup() {
 		fi
 	fi
 }
+
 ### Check current user permissions
 check_permissions() {
 	if [[ $EUID -ne 0 ]]
@@ -172,6 +171,7 @@ check_permissions() {
 		return
 	fi
 }
+
 ### Check if configuration file exists and contains valid data
 check_configuration_file() {
 	if [ -r "${CFG_FILE_LOCATION}" ] && [ -s "${CFG_FILE_LOCATION}" ]

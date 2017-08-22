@@ -1,4 +1,4 @@
-# Tufin Backup Wizard (v. 1.7.1)
+# Tufin Backup Wizard (v. 1.7.2)
 Tufin backup wizard is a solution that eases the difficulties an automated backup can create. It helps you to configure and realize the backup you desired, no matter if you are using SecureTrack or SecureChange / SecureApp.
 
 # Capabilities
