@@ -22,9 +22,14 @@ Simply download the latet copy of the backup wizard and place it on your Tufin S
 Note: The wizard will create a configuration file after everything was setup initially. The configuration file is located at /usr/local/bin/backup-wizard.cfg and is only readable for the root-user. Passwords for remote backups are also stored within this file.
 
 # Screenshots
+Running tha wizard
 ![Running the wizard](https://github.com/nicolaswehmeyer/tufin-backup-wizard/blob/master/wizard-configuration.png)
+
+Running the script after configuration
 ![Running the backup script](https://github.com/nicolaswehmeyer/tufin-backup-wizard/blob/master/wizard-running.png)
-![Rerunning the wizard](https://github.com/nicolaswehmeyer/tufin-backup-wizard/blob/master/wizard-configuration.png/wizard-reconfigure.png)
+
+Reconfiguring the backup using --reconfigure
+![Rerunning the wizard](https://github.com/nicolaswehmeyer/tufin-backup-wizard/blob/master/wizard-reconfigure.png)
 
 # Supported versions
 The script has been verified to work with TufinOS 2.13 / 2.14 and TOS R16-4 up to R17-1.
