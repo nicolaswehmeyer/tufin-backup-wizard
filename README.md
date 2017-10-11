@@ -17,9 +17,13 @@ Simply download the latet copy of the backup wizard and place it on your Tufin S
 2. Place it in the following directory on your Tufin Server: **/usr/local/bin/**
 3. Make sure to set the correct owner of the script: **chown root:root /usr/local/bin/backup-wizard.sh**
 4. Also make sure to set the correct permissions: **chmod 750 /usr/local/bin/backup-wizard.sh**
-5. **Finally:** Run the wizard and follow the instructions: **./usr/local/bin/backup-wizard.sh**
+5. **Finally:** Run the wizard and follow the instructions: **sh /usr/local/bin/backup-wizard.sh**
 
-Note: The wizard will create a configuration file after everything was setup initially. The configuration file is located at /usr/local/bin/backup-wizard.cfg and is only readable for the root-user. Passwords for remote backups are also stored within this file.
+**Note:** The wizard will create a configuration file after everything was setup initially. The configuration file is located at /usr/local/bin/backup-wizard.cfg and is only readable for the root-user. Passwords for remote backups are also stored within this file. Once a configuration file exists, the wizard will not be shown again and rerunning the file triggers the backup with the previously defined bnackup settings.
+
+# Additional features
+- You can rerun the wizard by running the following command: **sh /usr/local/bin/backup-wizard.sh --reconfigure**
+- You can delete a generated configuration file by running the following command: **sh /usr/local/bin/backup-wizard.sh --delete-configuration**
 
 # Screenshots
 Running tha wizard
@@ -32,4 +36,4 @@ Reconfiguring the backup using --reconfigure
 ![Rerunning the wizard](https://github.com/nicolaswehmeyer/tufin-backup-wizard/blob/master/wizard-reconfigure.png)
 
 # Supported versions
-The script has been verified to work with TufinOS 2.13 / 2.14 and TOS R16-4 up to R17-1.
+The script has been verified to work with TufinOS 2.13 / 2.14 and TOS R16-4 up to R17-1 HF3.
