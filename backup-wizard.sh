@@ -13,14 +13,6 @@ DATE=`/bin/date +%F`
 TIME=`/bin/date +%H%M`
 VER=`/usr/sbin/st ver | grep SecureTrack |awk '{print $3$4$5$6}'`
 
-### Check if a prefix was defined and change the backup file accordingly
-if [ -z ${BACKUP_FILE_PREFIX} ]
-then
-        BACKUP_FILE_PATH=${BACKUP_DIR}tos-backup-${VER}-${TIME}
-else
-        BACKUP_FILE_PATH=${BACKUP_DIR}${BACKUP_FILE_PREFIX}-tos-backup-${VER}-${TIME}
-fi
-
 ### Creating info and error handlers
 log_timestamp_info() {
 	LOG_TIME=`/bin/date +%T`
@@ -42,6 +34,8 @@ initialize_backup() {
 	check_permissions
 	### Check if configuration has already been done
 	check_configuration_file
+	### Set backup file path
+	set_backup_file_path
 	### Call function to check if tufin-jobs are running
 	check_st_services
 	### Call corresponding function for backup type provided
@@ -182,6 +176,16 @@ check_configuration_file() {
 	else
 		echo -e "$(log_timestamp_info) Backup configuration file doesn't exists or is empty. Starting first time wizard."
 		setup_wizard
+	fi
+}
+
+### Check if a prefix was defined and change the backup file accordingly
+set_backup_file_path() {
+	if [ -z ${BACKUP_FILE_PREFIX} ]
+	then
+		BACKUP_FILE_PATH=${BACKUP_DIR}tos-backup-${VER}-${TIME}
+	else
+		BACKUP_FILE_PATH=${BACKUP_DIR}${BACKUP_FILE_PREFIX}-tos-backup-${VER}-${TIME}
 	fi
 }
 
@@ -748,3 +752,4 @@ done
 
 ### Run the backup script in correct order
 initialize_backup
+
