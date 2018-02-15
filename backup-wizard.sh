@@ -679,9 +679,9 @@ scp_transfer() {
 			set timeout -1
 			spawn scp /tmp/tos-backup-${VER}-${TIME}_${DATE}.zip ${USERNAME}@${SERVER}:${BACKUP_DIR}.
 			expect {
-				yes/no { send yes\r; exp_continue }
-				password: { send ${PASSWORD}\r }
-				No such file or directory { send_user \"Remote directory doesn't exist or is not writeable\n\" }
+				*es/no { send yes\r; exp_continue }
+				*assword: { send ${PASSWORD}\r }
+				*o such file or directory { send_user \"Remote directory doesn't exist or is not writeable\n\" }
 				timeout { send_user \"Failed to receive password prompt from ${SERVER}. Aborting.\n\"; exit 1 }
 				eof { send_user \"SCP failure. Aborting \n\"; exit 1 }
 			}
@@ -691,7 +691,7 @@ scp_transfer() {
 				eof { send_user \"Transmission failure. Aborting\n\"; exit 1 }
 			}
 			expect {
-				lost connection { send_user \"Could not connect to remote server. Aborting transfer.\n\" }
+				*ost *onnection { send_user \"Could not connect to remote server. Aborting transfer.\n\" }
 				timeout { send_user \"Failed to connect to ${SERVER}. Aborting.\n\"; exit 1 }
 				eof { send_user \"Connection failure. Aborting\n\"; exit 1 }
 			}
@@ -706,9 +706,9 @@ scp_transfer() {
 			set timeout -1
 			spawn scp /tmp/${BACKUP_FILE_PREFIX}-tos-backup-${VER}-${TIME}_${DATE}.zip ${USERNAME}@${SERVER}:${BACKUP_DIR}.
 			expect {
-				yes/no { send yes\r; exp_continue }
-				password: { send ${PASSWORD}\r }
-				No such file or directory { send_user \"Remote directory doesn't exist or is not writeable\n\" }
+				*es/no { send yes\r; exp_continue }
+				*assword: { send ${PASSWORD}\r }
+				*o such file or directory { send_user \"Remote directory doesn't exist or is not writeable\n\" }
 				timeout { send_user \"Failed to connect to ${SERVER}. Aborting.\n\"; exit 1 }
 				eof { send_user \"SCP failure. Aborting.\n\"; exit 1 }
 			}
@@ -718,7 +718,7 @@ scp_transfer() {
 				eof { send_user \"Transmission failure. Aborting\n\"; exit 1 }
 			}
 			expect {
-				lost connection { send_user \"Could not connect to remote server. Aborting transfer.\n\" }
+				*ost *onnection { send_user \"Could not connect to remote server. Aborting transfer.\n\" }
 				timeout { send_user \"Failed to connect to ${SERVER}. Aborting.\n\"; exit 1 }
 				eof { send_user \"Connection failure. Aborting\n\"; exit 1 }
 			}
