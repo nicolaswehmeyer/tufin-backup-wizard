@@ -466,19 +466,14 @@ create_backup() {
 		if [ ${BACKUP_MODE} == "scp" ]
 		then
 			scp_transfer
-		else
-			echo -e "$(log_timestamp_error) No backup mode defined. Please set backup mode (local/ftp/scp)"
-		fi
 		### Transfer backup file using FTP
-		if [ ${BACKUP_MODE} == "ftp" ]
+		elif [ ${BACKUP_MODE} == "ftp" ]
 		then
-			ftp_transfer
+			ftp_transfers
 		else
 			echo -e "$(log_timestamp_error) No backup mode defined. Please set backup mode (local/ftp/scp)"
+			exit
 		fi
-	else
-		echo -e "$(log_timestamp_error) No remote backup directory defined. [Example: \"/backup/\"]"
-		exit
 	fi
 }
 
@@ -555,107 +550,11 @@ ftp_transfer() {
 	then
 		echo "$(log_timestamp_info) Starting FTP filetransfer:"
 		### If everything went well we can now copy the backup via FTP
-		/usr/local/st/expect -c "
-			log_user 1
-			set timeout 100
-			spawn ftp ${SERVER}
-			expect {
-				220 { send ${USERNAME}\r }
-				timeout {
-					send_user \"$(log_timestamp_error) There was a problem with accessing the ftp service.\n\"
-					sleep 1
-					exit
-				}
-			}
-			expect {
-				331 { send ${PASSWORD}\r }
-				530 { send_user \"Wrong credentials. Aborting\n\"; exit 1 }
-				timeout {
-					send_user \"$(log_timestamp_error) There was a problem with the username.\n\"
-					sleep 1
-					exit
-				}
-			}
-			expect {
-				ftp> { send \"cd ${BACKUP_DIR}\r\" }
-				550 { send_user \"\nThe remote directory doesn't exists. Aborting.\n\"; exit 1 }
-				timeout {
-					send_user \"$(log_timestamp_error) The remote directory doesn't exist or is not writeable.\n\"
-					sleep 1
-					exit
-				}
-			}
-			expect {
-				250 { send \"put /tmp/tos-backup-${VER}-${TIME}_${DATE}.zip ${BACKUP_DIR}tos-backup-${VER}-${TIME}_${DATE}.zip\r\" }
-				timeout {
-					send_user \"$(log_timestamp_error) Could not save file to remote directory.\n\"
-					sleep 1
-					exit
-				}
-			}
-			expect {
-				226 { send_user \"Backup has been saved to remote server as ${BACKUP_DIR}tos-backup-${VER}-${TIME}_${DATE}.zip\n\" }
-				timeout {
-					send_user \"$(log_timestamp_error) There was a problem with the upload of the backup to the FTP server.\n\"
-					sleep 1
-					exit
-				}
-			}
-			sleep 1
-			exit
-		"	
+		curl -v -T /tmp/tos-backup-${VER}-${TIME}_${DATE}.zip ftp://${USERNAME}:${PASSWORD}@${SERVER}/${BACKUP_DIR}
 	else
 		echo "$(log_timestamp_info) Starting FTP filetransfer:"
 		#### If everything went well we can now copy the backup via FTP
-		/usr/local/st/expect -c "
-			log_user 1
-			set timeout 100
-			spawn ftp ${SERVER}
-			expect {
-				220 { send ${USERNAME}\r }
-				timeout {
-					send_user \"$(log_timestamp_error) There was a problem with accessing the ftp service.\n\"
-					sleep 1
-					exit
-				}
-			}
-			expect {
-				331 { send ${PASSWORD}\r }
-				530 { send_user \"Wrong credentials. Aborting\n\"; exit 1 }
-				timeout {
-					send_user \"$(log_timestamp_error) There was a problem with the username.\n\"
-					sleep 1
-					exit
-				}
-			}
-			expect {
-				ftp> { send \"cd ${BACKUP_DIR}\r\" }
-				550 { send_user \"\nThe remote directory doesn't exists. Aborting.\n\"; exit 1 }
-				timeout {
-					send_user \"$(log_timestamp_error) The remote directory doesn't exist or is not writeable.\n\"
-					sleep 1
-					exit
-				}
-			}
-			expect {
-				250 { send \"put /tmp/${BACKUP_FILE_PREFIX}-tos-backup-${VER}-${TIME}_${DATE}.zip ${BACKUP_DIR}${BACKUP_FILE_PREFIX}-tos-backup-${VER}-${TIME}_${DATE}.zip\r\" }
-				timeout {
-					send_user \"$(log_timestamp_error) Could not save file to remote directory.\n\"
-					sleep 1
-					exit
-				}
-			}
-			expect {
-				226 { send_user \"Backup has been saved to remote server as ${BACKUP_DIR}${BACKUP_FILE_PREFIX}-tos-backup-${VER}-${TIME}_${DATE}.zip\n\" }
-				timeout {
-					send_user \"$(log_timestamp_error) There was a problem with the upload of the backup to the FTP server.\n\"
-					sleep 1
-					exit
-				}
-			}
-			sleep 1
-			exit
-		"
+		curl -v -T /tmp/${BACKUP_FILE_PREFIX}-tos-backup-${VER}-${TIME}_${DATE}.zip ftp://${USERNAME}:${PASSWORD}@${SERVER}/${BACKUP_DIR}
 	fi
 	### Calling function to delete temporary backup file
 	cleanup_backupfolder remote
@@ -679,9 +578,9 @@ scp_transfer() {
 			set timeout -1
 			spawn scp /tmp/tos-backup-${VER}-${TIME}_${DATE}.zip ${USERNAME}@${SERVER}:${BACKUP_DIR}.
 			expect {
-				*es/no { send yes\r; exp_continue }
-				*assword: { send ${PASSWORD}\r }
-				*o such file or directory { send_user \"Remote directory doesn't exist or is not writeable\n\" }
+				es/no { send yes\r; exp_continue }
+				assword: { send ${PASSWORD}\r }
+				such file or directory { send_user \"Remote directory doesn't exist or is not writeable\n\" }
 				timeout { send_user \"Failed to receive password prompt from ${SERVER}. Aborting.\n\"; exit 1 }
 				eof { send_user \"SCP failure. Aborting \n\"; exit 1 }
 			}
@@ -691,7 +590,7 @@ scp_transfer() {
 				eof { send_user \"Transmission failure. Aborting\n\"; exit 1 }
 			}
 			expect {
-				*ost *onnection { send_user \"Could not connect to remote server. Aborting transfer.\n\" }
+				ost connection { send_user \"Could not connect to remote server. Aborting transfer.\n\" }
 				timeout { send_user \"Failed to connect to ${SERVER}. Aborting.\n\"; exit 1 }
 				eof { send_user \"Connection failure. Aborting\n\"; exit 1 }
 			}
@@ -706,9 +605,9 @@ scp_transfer() {
 			set timeout -1
 			spawn scp /tmp/${BACKUP_FILE_PREFIX}-tos-backup-${VER}-${TIME}_${DATE}.zip ${USERNAME}@${SERVER}:${BACKUP_DIR}.
 			expect {
-				*es/no { send yes\r; exp_continue }
-				*assword: { send ${PASSWORD}\r }
-				*o such file or directory { send_user \"Remote directory doesn't exist or is not writeable\n\" }
+				es/no { send yes\r; exp_continue }
+				assword: { send ${PASSWORD}\r }
+				such file or directory { send_user \"Remote directory doesn't exist or is not writeable\n\" }
 				timeout { send_user \"Failed to connect to ${SERVER}. Aborting.\n\"; exit 1 }
 				eof { send_user \"SCP failure. Aborting.\n\"; exit 1 }
 			}
@@ -718,7 +617,7 @@ scp_transfer() {
 				eof { send_user \"Transmission failure. Aborting\n\"; exit 1 }
 			}
 			expect {
-				*ost *onnection { send_user \"Could not connect to remote server. Aborting transfer.\n\" }
+				ost connection { send_user \"Could not connect to remote server. Aborting transfer.\n\" }
 				timeout { send_user \"Failed to connect to ${SERVER}. Aborting.\n\"; exit 1 }
 				eof { send_user \"Connection failure. Aborting\n\"; exit 1 }
 			}
