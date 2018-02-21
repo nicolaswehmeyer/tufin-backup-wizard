@@ -1,7 +1,7 @@
 #!/bin/sh
 # Script provided by Tufin, Nicolas Wehmeyer, Professional Services Consultant
 # Disclaimer: This script is a third-party development and is not supported by Tufin. Use it at your own risk
-# Version: 1.7.3
+# Version: 1.7.4
 
 ###							 ###
 ##### When needed, change the config file location here #####
@@ -11,6 +11,7 @@ CFG_FILE_LOCATION="/usr/local/bin/backup-wizard.cfg"
 
 ### We need some additional values for our script to run nicely
 export PATH="${PATH}:/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin"
+SUITE_STATUS_FILE="/opt/tufin/securitysuite/status/suite.status"
 DATE=`/bin/date +%F`
 TIME=`/bin/date +%H%M`
 VER=`/usr/sbin/st ver | grep SecureTrack |awk '{print $3$4$5$6}'`
@@ -194,12 +195,22 @@ set_backup_file_path() {
 ### Check if tufin-jobs are running otherwise stop backup
 check_st_services() {
 	### Chek if tufin-jobs are running. Otherwise stop backup
-	if [[ -z $(ps -ef | grep tufin-jobs | grep -v grep) ]]
+	source ${SUITE_STATUS_FILE}
+	ST_STATUS=${ST}
+	SCW_STATUS=${SCW}
+	SA_STATUS=${SA}
+	if ( [ ${ST_STATUS} == "ENABLED" ] ) || ( [ ${ST_STATUS} == "ENABLED" ] && [ ${SCW_STATUS} == "ENABLED" ] )
 	then
-		echo -e "$(log_timestamp_error) tufin-jobs service not running. Aborting."
-		exit 1
+		if [[ -z $(ps -ef | grep tufin-jobs | grep -v grep) ]]
+		then
+			echo -e "$(log_timestamp_error) Checking services. Tufin-jobs service not running. Aborting."
+			exit 1
+		else
+			echo -e "$(log_timestamp_info) Checking services. Tufin-jobs service running. Continuing with backup."
+			return
+		fi
 	else
-		echo -e "$(log_timestamp_info) tufin-jobs service running. Continuing with backup."
+		echo -e "$(log_timestamp_info) Skipping services check as this is a SecureChange server."
 		return
 	fi
 }
@@ -430,7 +441,7 @@ create_backup() {
         	then
 			if [ -d "${BACKUP_DIR}" ]
 			then
-                		echo "$(log_timestamp_info) Creating new backup file ${BACKUP_FILE_PATH}.zip. This will take some time."
+                		echo "$(log_timestamp_info) Creating new backup file ${BACKUP_FILE_PATH}_${DATE}.zip. This will take some time."
         		else
                 		echo "$(log_timestamp_error) Backup folder ${BACKUP_DIR} doesn't exist. Please create folder ${BACKUP_DIR} using \"mkdir ${BACKUP_DIR}\". Aborting."
                 		exit
