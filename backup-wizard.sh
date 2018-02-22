@@ -1,7 +1,7 @@
 #!/bin/sh
 # Script provided by Tufin, Nicolas Wehmeyer, Professional Services Consultant
 # Disclaimer: This script is a third-party development and is not supported by Tufin. Use it at your own risk
-# Version: 1.7.4
+# Version: 1.7.5
 
 ###							 ###
 ##### When needed, change the config file location here #####
