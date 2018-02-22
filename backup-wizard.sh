@@ -31,6 +31,20 @@ log_timestamp_error() {
 	echo "${LOG_TIMESTAMP} ERROR:" 
 }
 
+script_help() {
+	echo -e "Usage: ./backup-wizard.sh [--help] [--reconfigure] [--show-configuration] [--delete-configuration]"
+	echo -e ""
+	echo -e "Run this script without parameters for the first time to properly configure it."
+	echo -e "After the script has been configured you can run it without parameters to create backups."
+	echo -e ""
+	echo -e "--help|-h\t\t\tDisplay this information."
+	echo -e "--reconfigure|-r\t\tReconfigure backup settings. This will overwrite current settings."
+	echo -e "--show-configuration|-s\t\tShow the current backup settings."
+	echo -e "--delete-configuration|-d\tDelete generated configuration file"
+	echo -e ""
+	exit 0
+}
+
 ### Check if services are running and select correct backup method
 initialize_backup() {
 	### Check if the script is being run with correct permissions
@@ -41,119 +55,15 @@ initialize_backup() {
 	set_backup_file_path
 	### Call function to check if tufin-jobs are running
 	check_st_services
+	### Show configuration settings
+	show_configuration
 	### Call corresponding function for backup type provided
 	if [ "${BACKUP_MODE}" == "local" ]
 	then
-		### Display all passed backup settings
-		echo -e "$(log_timestamp_info) Backup settings"
-		echo -e "-----------------------------------------"
-		### Backup Mode
-		if [ -z "${BACKUP_MODE}" ]
-		then
-			echo -e "Backup mode:\t\tundefined"
-		else
-			echo -e "Backup mode:\t\t${BACKUP_MODE}"
-		fi
-		### Backup type	
-		if [ -z "${BACKUP_TYPE}" ]
-		then
-			echo -e "Backup type:\t\tFull Backup"
-		else
-			echo -e "Backup type:\t\t${BACKUP_TYPE}"
-		fi
-		### Backup folder	
-		if [ -z "${BACKUP_DIR}" ]
-		then
-			echo -e "Backup folder:\t\tNot specified"
-		else
-			echo -e "Backup folder:\t\t${BACKUP_DIR}"
-		fi
-		### Backup file prefix	
-		if [ -z "${BACKUP_FILE_PREFIX}" ]
-		then
-			echo -e "Backup prefix:\t\tNot specified"
-		else
-			echo -e "Backup prefix:\t\t${BACKUP_FILE_PREFIX}"
-		fi
-		### Maximal number of backups	
-		if [ -z "${MAX_BACKUPS}" ]
-		then
-			echo -e "Max. backups:\t\tNone"
-		else
-			echo -e "Max. Backups:\t\t${MAX_BACKUPS}"
-		fi
-		echo -e "-----------------------------------------"
 		create_backup local
 	elif [ "${BACKUP_MODE}" == "ftp" ] || [ "${BACKUP_MODE}" == "scp" ]
 	then
-		### Display all passed backup settings
-		echo -e "$(log_timestamp_info) Backup settings"
-		echo -e "-----------------------------------------"
-		### Backup Mode
-		if [ -z "${BACKUP_MODE}" ]
-		then
-			echo -e "Backup mode:\t\tundefined"
-		else
-			echo -e "Backup mode:\t\t${BACKUP_MODE}"
-		fi
-		### Backup type	
-		if [ -z "${BACKUP_TYPE}" ]
-		then
-			echo -e "Backup type:\t\tFull Backup"
-		else
-			echo -e "Backup type:\t\t${BACKUP_TYPE}"
-		fi
-		### Backup folder	
-		if [ -z "${BACKUP_DIR}" ]
-		then
-			echo -e "Backup folder:\t\tNone"
-		else
-			echo -e "Backup folder:\t\t${BACKUP_DIR}"
-		fi
-		### Backup file prefix	
-		if [ -z "${BACKUP_FILE_PREFIX}" ]
-		then
-			echo -e "Backup prefix:\t\tNone"
-		else
-			echo -e "Backup prefix:\t\t${BACKUP_FILE_PREFIX}"
-		fi
-		### Maximal number of backups	
-		if [ -z "${MAX_BACKUPS}" ]
-		then
-			echo -e "Max. backups:\t\tIgnoring (local backups only)"
-		else
-			echo -e "Max. Backups:\t\t${MAX_BACKUPS}"
-		fi
-		### Remote username	
-		if [ -z "${USERNAME}" ]
-		then
-			echo -e "Remote Username:\tNot specified"
-		else
-			echo -e "Remote Username:\t${USERNAME}"
-		fi
-		### Remote password	
-		if [ -z "${PASSWORD}" ]
-		then
-			echo -e "Remote Password:\tNot specified"
-		else
-			echo -e "Remote Password:\t******"
-		fi
-		### Remote server	
-		if [ -z "${SERVER}" ]
-		then
-			echo -e "Remote Server:\t\tNot specified"
-		else
-			echo -e "Remote Server:\t\t${SERVER}"
-		fi
-		echo -e "-----------------------------------------"
-		### Check if we have all values to create the backup
-		if [ -z "${USERNAME}" ] || [ -z "${PASSWORD}" ] || [ -z "${SERVER}" ]
-		then
-			echo -e "$(log_timestamp_error) Please provide directory, username, passwort and server. Aborting"
-			exit 1
-		else
-			create_backup remote
-		fi
+		create_backup remote
 	fi
 }
 
@@ -237,7 +147,7 @@ setup_wizard() {
 		echo -e "$(log_timestamp_error) You haven't provided a correct backup mode. Please type \"local\", \"ftp\" or \"scp\". Aborting"
 		exit 1
 	fi
-	echo -en "$(log_timestamp_info) OPTIONAL: Do you want to add a a prefix to the backup file names? Please type \"yes\" or \"no\" and press ENTER. [Default: no]: "
+	echo -en "$(log_timestamp_info) OPTIONAL: Do you want to add a prefix to the backup file names? Please type \"yes\" or \"no\" and press ENTER. [Default: no]: "
 	read PREFIX_NEEDED
 	
 	if [ -z ${PREFIX_NEEDED} ]
@@ -392,7 +302,7 @@ setup_wizard() {
 
 ### Reconfigure the backup
 reconfigure_backup() {
-	echo -ne "$(log_timestamp_info) Are you sure that you want to delete your current backup settings in ${CFG_FILE_LOCATION} and run the setup wizard again? [yes/no]: "
+	echo -ne "$(log_timestamp_info) Are you sure that you want to delete your current backup settings in ${CFG_FILE_LOCATION} and rerun the setup wizard? [yes/no]: "
 	read reconfiguration_needed
 	if [ ${reconfiguration_needed} == "yes" ]
 	then
@@ -405,6 +315,134 @@ reconfigure_backup() {
 		exit 1
 	else
 		echo -e "$(log_timestamp_error) Wrong option set. Aborting without deleting the current backup settings."
+		exit 1
+	fi
+}
+
+### show configuration file
+show_configuration() {
+	if [ -r "${CFG_FILE_LOCATION}" ] && [ -s "${CFG_FILE_LOCATION}" ]
+	then
+		check_configuration_file
+		### Display configuration settings
+		if [ "${BACKUP_MODE}" == "local" ]
+		then
+			### Display all passed backup settings
+			echo -e "$(log_timestamp_info) Backup settings"
+			echo -e "-------------------------------------------"
+			### Backup Mode
+			if [ -z "${BACKUP_MODE}" ]
+			then
+				echo -e "Backup mode:\t\tundefined"
+			else
+				echo -e "Backup mode:\t\t${BACKUP_MODE}"
+			fi
+			### Backup type	
+			if [ -z "${BACKUP_TYPE}" ]
+			then
+				echo -e "Backup type:\t\tFull Backup"
+			else
+				echo -e "Backup type:\t\t${BACKUP_TYPE}"
+			fi
+			### Backup folder	
+			if [ -z "${BACKUP_DIR}" ]
+			then
+				echo -e "Backup folder:\t\tNot specified"
+			else
+				echo -e "Backup folder:\t\t${BACKUP_DIR}"
+			fi
+			### Backup file prefix	
+			if [ -z "${BACKUP_FILE_PREFIX}" ]
+			then
+				echo -e "Backup prefix:\t\tNot specified"
+			else
+				echo -e "Backup prefix:\t\t${BACKUP_FILE_PREFIX}"
+			fi
+			### Maximal number of backups	
+			if [ -z "${MAX_BACKUPS}" ]
+			then
+				echo -e "Max. backups:\t\tNone"
+			else
+				echo -e "Max. Backups:\t\t${MAX_BACKUPS}"
+			fi
+			echo -e "-------------------------------------------"
+		elif [ "${BACKUP_MODE}" == "ftp" ] || [ "${BACKUP_MODE}" == "scp" ]
+		then
+			### Check if we have all values to create the backup
+			if [ -z "${USERNAME}" ] || [ -z "${PASSWORD}" ] || [ -z "${SERVER}" ]
+			then
+				echo -e "$(log_timestamp_error) Please provide directory, username, passwort and server. Aborting"
+				exit 1
+			fi
+			### Display all passed backup settings
+			echo -e "$(log_timestamp_info) Backup settings"
+			echo -e "-------------------------------------------"
+			### Backup Mode
+			if [ -z "${BACKUP_MODE}" ]
+			then
+				echo -e "Backup mode:\t\tundefined"
+			else
+				echo -e "Backup mode:\t\t${BACKUP_MODE}"
+			fi
+			### Backup type	
+			if [ -z "${BACKUP_TYPE}" ]
+			then
+				echo -e "Backup type:\t\tFull Backup"
+			else
+				echo -e "Backup type:\t\t${BACKUP_TYPE}"
+			fi
+			### Backup folder	
+			if [ -z "${BACKUP_DIR}" ]
+			then
+				echo -e "Backup folder:\t\tNone"
+			else
+				echo -e "Backup folder:\t\t${BACKUP_DIR}"
+			fi
+			### Backup file prefix	
+			if [ -z "${BACKUP_FILE_PREFIX}" ]
+			then
+				echo -e "Backup prefix:\t\tNone"
+			else
+				echo -e "Backup prefix:\t\t${BACKUP_FILE_PREFIX}"
+			fi
+			### Maximal number of backups	
+			if [ -z "${MAX_BACKUPS}" ]
+			then
+				echo -e "Max. backups:\t\tIgnoring (local backups only)"
+			else
+				echo -e "Max. Backups:\t\t${MAX_BACKUPS}"
+			fi
+			### Remote username	
+			if [ -z "${USERNAME}" ]
+			then
+				echo -e "Remote Username:\tNot specified"
+			else
+				echo -e "Remote Username:\t${USERNAME}"
+			fi
+			### Remote password	
+			if [ -z "${PASSWORD}" ]
+			then
+				echo -e "Remote Password:\tNot specified"
+			else
+				echo -e "Remote Password:\t******"
+			fi
+			### Remote server	
+			if [ -z "${SERVER}" ]
+			then
+				echo -e "Remote Server:\t\tNot specified"
+			else
+				echo -e "Remote Server:\t\t${SERVER}"
+			fi
+			echo -e "-------------------------------------------"
+		fi
+		if [ "$1" == "show_only" ]
+		then
+			exit 0
+		else
+			return
+		fi
+	else
+		echo -e "$(log_timestamp_error) Could not find configuration file. Please start the script first to configure your settings."
 		exit 1
 	fi
 }
@@ -423,6 +461,9 @@ delete_configuration() {
 			echo -e "$(log_timestamp_error) Could not delete the file ${CFG_FILE_LOCATION}. Check permissions. Aborting."
 			exit 1
 		fi
+	else
+		echo -e "$(log_timestamp_error) Could not find configuration file. Please start the script first to configure your settings."
+		exit 1
 	fi
 }
 
@@ -443,12 +484,13 @@ create_backup() {
 			then
                 		echo "$(log_timestamp_info) Creating new backup file ${BACKUP_FILE_PATH}_${DATE}.zip. This will take some time."
         		else
-                		echo "$(log_timestamp_error) Backup folder ${BACKUP_DIR} doesn't exist. Please create folder ${BACKUP_DIR} using \"mkdir ${BACKUP_DIR}\". Aborting."
-                		exit
+                		echo "$(log_timestamp_info) Backup folder ${BACKUP_DIR} doesn't exist. Creating it."
+				echo "$(log_timestamp_info) Creating new backup file ${BACKUP_FILE_PATH}_${DATE}.zip. This will take some time."
+				/bin/mkdir ${BACKUP_DIR}
 			fi
 		else
 			echo "$(log_timestamp_error) Please specify backup folder first."
-			exit
+			exit 1
         	fi
 		### Create the backup file
         	RESULT=`/usr/sbin/tos backup ${BACKUP_FILE_PATH}`
@@ -457,7 +499,7 @@ create_backup() {
         	if [ $? -ne 0 ]
         	then
         	        echo "$(log_timestamp_error) Backup failed. Reason: " ${RESULT}
-        	        exit
+        	        exit 1
         	else
         	        echo "$(log_timestamp_info) Backup has been created successfully."
         	fi
@@ -497,7 +539,7 @@ cleanup_backupfolder() {
         then
         	if [ -z "${MAX_BACKUPS}" ] || [ "${MAX_BACKUPS}" = 0 ]
         	then
-                	echo "$(log_timestamp_info) Maximum number of backup files has not been set (option -n). Backup folder will not be cleaned automatically."
+                	echo "$(log_timestamp_info) Maximum number of backup files has not been set. Backup folder will not be cleaned automatically."
         		exit
 		elif [ -n "${MAX_BACKUPS}" ] && [ -z "${BACKUP_FILE_PREFIX}" ]
                 then
@@ -555,7 +597,7 @@ ftp_transfer() {
 	### Check if necessary variables have been set
 	if [ -z "${USERNAME}" ] || [ -z "${PASSWORD}" ] || [ -z "${SERVER}" ]
 	then
-		echo "$(log_timestamp_error) Please provide directory, username, passwort and server by using -d (directory), -u (username) -p (password) and -s (server)."
+		echo "$(log_timestamp_error) Missing mandatory settings for remote backup. Please start the script with --reconfigure."
 		exit
 	fi
 	### Copying backup to remote server via FTP
@@ -579,7 +621,7 @@ scp_transfer() {
 	### Check if necessary variables have been set
 	if [ -z "${USERNAME}" ] || [ -z "${PASSWORD}" ] || [ -z "${SERVER}" ]
 	then
-		echo "$(log_timestamp_error) Please provide directory, username, passwort and server by using -d (directory), -u (username) -p (password) and -s (server)."
+		echo "$(log_timestamp_error) Missing mandatory settings for remote backup. Please start the script with --reconfigure."
 		exit
 	fi
 	### Copying backup to remote server via SCP
@@ -646,18 +688,20 @@ scp_transfer() {
 for arg in "$@"; do
 	shift
 	case "$arg" in
-		"--reconfigure")		set -- "$@" "-r" ;;
-		"--delete-configuration")	set -- "$@" "-d" ;;
 		"--help")			set -- "$@" "-h" ;;
+		"--reconfigure")		set -- "$@" "-r" ;;
+		"--show-configuration")		set -- "$@" "-s" ;;
+		"--delete-configuration")	set -- "$@" "-d" ;;
 		*)				set -- "$@" "$arg"
 	esac
 done
-while getopts "rd" OPTION
+while getopts "hrsd" OPTION
 do
 	case "${OPTION}" in
-		"r")	reconfigure_backup ;;
-		"d")	delete_configuration ;;
 		"h")	script_help ;;
+		"r")	reconfigure_backup ;;
+		"s")	show_configuration show_only ;;
+		"d")	delete_configuration ;;
 		"?")	echo "help"; exit 1 ;;
 	esac
 done
