@@ -1,16 +1,20 @@
 #!/bin/sh
 # Script provided by Tufin, Nicolas Wehmeyer, Professional Services Consultant
 # Disclaimer: This script is a third-party development and is not supported by Tufin. Use it at your own risk
-# Version: 1.7.5
+# Version: 1.7.6
 
-###							 ###
-##### When needed, change the config file location here #####
+###							           ###
+##### When needed, change the config and log file locations here #####
 CFG_FILE_LOCATION="/usr/local/bin/backup-wizard.cfg"
-##### When needed, change the config file location here #####
-###							  ##
+BACKUP_FILE_LOCATION="/var/log/st/backup-wizard.log"
+##### When needed, change the config and log file locations here #####
+###							            ##
 
 ### We need some additional values for our script to run nicely
 export PATH="${PATH}:/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin"
+SCRIPT_WORKDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+SCRIPT_FILENAME=`basename "$0"`
+CRONTAB_TEMP_FILE=${SCRIPT_WORKDIR}/backup-wizard-cron
 SUITE_STATUS_FILE="/opt/tufin/securitysuite/status/suite.status"
 DATE=`/bin/date +%F`
 TIME=`/bin/date +%H%M`
@@ -32,7 +36,7 @@ log_timestamp_error() {
 }
 
 script_help() {
-	echo -e "Usage: ./backup-wizard.sh [--help] [--reconfigure] [--show-configuration] [--delete-configuration]"
+	echo -e "Usage: ${SCRIPT_WORKDIR}/${SCRIPT_FILENAME} [--help] [--reconfigure] [--show-configuration] [--delete-configuration]"
 	echo -e ""
 	echo -e "Run this script without parameters for the first time to properly configure it."
 	echo -e "After the script has been configured you can run it without parameters to create backups."
@@ -40,7 +44,9 @@ script_help() {
 	echo -e "--help|-h\t\t\tDisplay this information."
 	echo -e "--reconfigure|-r\t\tReconfigure backup settings. This will overwrite current settings."
 	echo -e "--show-configuration|-s\t\tShow the current backup settings."
-	echo -e "--delete-configuration|-d\tDelete generated configuration file"
+	echo -e "--delete-configuration|-d\tDelete generated configuration file."
+	echo -e "--add-cronjob|-c\t\tCreate or overwrite an existing cronjob in root users crontab."
+	echo -e "--delete-cronjob|-e\t\tErase backup cronjobs that are referenced to this script."
 	echo -e ""
 	exit 0
 }
@@ -127,6 +133,7 @@ check_st_services() {
 
 ### Start setup wizard
 setup_wizard() {
+	clear
 	echo -e "$(log_timestamp_info) ---------------------------------------------------------------------------------"
 	echo -en "$(log_timestamp_info) Please select your backup mode. Type \"local\", \"ftp\" or \"scp\" and press ENTER [Default: local]: "
 	read BACKUP_MODE
@@ -147,7 +154,7 @@ setup_wizard() {
 		echo -e "$(log_timestamp_error) You haven't provided a correct backup mode. Please type \"local\", \"ftp\" or \"scp\". Aborting"
 		exit 1
 	fi
-	echo -en "$(log_timestamp_info) OPTIONAL: Do you want to add a prefix to the backup file names? Please type \"yes\" or \"no\" and press ENTER. [Default: no]: "
+	echo -en "$(log_timestamp_info) Do you want to add a prefix to the backup file names? Please type \"yes\" or \"no\" and press ENTER. [Default: no]: "
 	read PREFIX_NEEDED
 	
 	if [ -z ${PREFIX_NEEDED} ]
@@ -179,7 +186,7 @@ setup_wizard() {
 			echo -e "$(log_timestamp_info) Backup directory has been set to ${BACKUP_DIR}."
 		fi
 	
-		echo -en "$(log_timestamp_info) OPTIONAL: Do you want to delete older backups from your backup folder automatically? Type \"yes\" or \"no\" and press ENTER. [Default: no]: "
+		echo -en "$(log_timestamp_info) Do you want to delete older backups from your backup folder automatically? Type \"yes\" or \"no\" and press ENTER. [Default: no]: "
 		read CLEANUP_NEEDED
 		if [ -z ${CLEANUP_NEEDED} ]
 		then
@@ -292,11 +299,18 @@ setup_wizard() {
 		echo -e "$(log_timestamp_info) Changing file permissions of ${CFG_FILE_LOCATION}, so only root is able to read it."
 		chown root:root ${CFG_FILE_LOCATION}
 		chmod 750 ${CFG_FILE_LOCATION}
-		echo -e "$(log_timestamp_info) ---------------------------------------------------------------------------------"
-		echo -e "$(log_timestamp_info) Finished successfully. You can now start using the script." 
-		echo -e "$(log_timestamp_info) Add the following to /etc/crontab to create a cronjob that runs every night at 1 AM."
-		echo -e "$(log_timestamp_info) 00 01 * * * /usr/local/bin/backup-wizard.sh >> /var/log/st/backup-wizard.log 2>&1"
-		exit 1
+		echo -ne "$(log_timestamp_info) Configuration was successful. Do you want to create a cronjob now? [yes/no]: "
+		read CRONJOB_NEEDED
+		if [ ${CRONJOB_NEEDED} == "yes" ]
+		then
+			add_cronjob 
+			echo -e "$(log_timestamp_info) ---------------------------------------------------------------------------------"
+		else
+			echo -e "$(log_timestamp_info) Okay, no cronjob will be created."
+			echo -e "$(log_timestamp_info) Use \"${SCRIPT_WORKDIR}/${SCRIPT_FILENAME} --add-cronjob\" to add one later."
+			echo -e "$(log_timestamp_info) ---------------------------------------------------------------------------------"
+		fi
+		exit
 	fi
 }
 
@@ -306,6 +320,7 @@ reconfigure_backup() {
 	read reconfiguration_needed
 	if [ ${reconfiguration_needed} == "yes" ]
 	then
+		clear
 		rm -f ${CFG_FILE_LOCATION}
 		echo -e "$(log_timestamp_info) Done. Deleted current backup configuration file ${CFG_FILE_LOCATION}. Starting setup wizard."
 		setup_wizard
@@ -435,7 +450,7 @@ show_configuration() {
 			fi
 			echo -e "-------------------------------------------"
 		fi
-		if [ "$1" == "show_only" ]
+		if [ "${1}" == "show_only" ]
 		then
 			exit 0
 		else
@@ -467,9 +482,47 @@ delete_configuration() {
 	fi
 }
 
-### Create cronjob
-create_cronjob() {
-	return
+### Add or overwrite an existing cronjob
+add_cronjob() {
+	/usr/bin/crontab -luroot > ${CRONTAB_TEMP_FILE} 2>/dev/null
+	if [ -s ${CRONTAB_TEMP_FILE} ]
+	then
+		if [[ ! -z $(grep "${SCRIPT_WORKDIR}/${SCRIPT_FILENAME}" "${CRONTAB_TEMP_FILE}") ]]
+		then
+			echo "$(log_timestamp_info) Found old backup cronjobs. Removing old jobs before creating a new one."
+			/usr/bin/crontab -luroot | grep -v ${SCRIPT_WORKDIR}/${SCRIPT_FILENAME} > ${CRONTAB_TEMP_FILE}
+			echo "00 01 * * * ${SCRIPT_WORKDIR}/${SCRIPT_FILENAME} >> ${BACKUP_FILE_LOCATION} 2>&1" >> ${CRONTAB_TEMP_FILE}
+			/usr/bin/crontab ${CRONTAB_TEMP_FILE}
+			echo -e "$(log_timestamp_info) Crontab has been updated. Use \"crontab -luroot\" to view the newly created job."
+		else
+			echo "00 01 * * * ${SCRIPT_WORKDIR}/${SCRIPT_FILENAME} >> ${BACKUP_FILE_LOCATION} 2>&1" >> ${CRONTAB_TEMP_FILE}
+			/usr/bin/crontab ${CRONTAB_TEMP_FILE}
+			echo -e "$(log_timestamp_info) New cronjob has been created. Use \"crontab -luroot\" to view the changes."
+		fi
+	else
+		echo -e "$(log_timestamp_info) Empty Crontab file. New cronjob has been added. Use \"crontab -luroot\" to view the changes."
+		echo "00 01 * * * ${SCRIPT_WORKDIR}/${SCRIPT_FILENAME} >> ${BACKUP_FILE_LOCATION} 2>&1" >> ${CRONTAB_TEMP_FILE}
+		/usr/bin/crontab ${CRONTAB_TEMP_FILE}
+	fi
+	rm -f ${CRONTAB_TEMP_FILE}
+	if [ "${1}" == "no_wizard" ]
+	then
+		exit 0
+	else
+		return
+	fi
+}
+
+### Delete backup cronjobs
+delete_cronjob() {
+	if [[ ! -z $(/usr/bin/crontab -luroot | grep "${SCRIPT_WORKDIR}/${SCRIPT_FILENAME}") ]]
+	then 
+		/usr/bin/crontab -luroot | grep -v ${SCRIPT_WORKDIR}/${SCRIPT_FILENAME} | /usr/bin/crontab -
+		echo -e "$(log_timestamp_info) Removed backup cronjobs from root users crontab."
+	else
+		echo -e "$(log_timestamp_error) There are no backup cronjobs that can be removed."
+	fi
+	exit
 }
 
 ### Create the actual backup locally first
@@ -692,17 +745,21 @@ for arg in "$@"; do
 		"--reconfigure")		set -- "$@" "-r" ;;
 		"--show-configuration")		set -- "$@" "-s" ;;
 		"--delete-configuration")	set -- "$@" "-d" ;;
+		"--add-cronjob")		set -- "$@" "-c" ;;
+		"--delete-cronjob")		set -- "$@" "-e" ;;
 		*)				set -- "$@" "$arg"
 	esac
 done
-while getopts "hrsd" OPTION
+while getopts "hrsdce" OPTION
 do
 	case "${OPTION}" in
 		"h")	script_help ;;
 		"r")	reconfigure_backup ;;
 		"s")	show_configuration show_only ;;
 		"d")	delete_configuration ;;
-		"?")	echo "help"; exit 1 ;;
+		"c")	add_cronjob no_wizard;;
+		"e")	delete_cronjob ;;
+		"?")	script_help; exit 1 ;;
 	esac
 done
 
