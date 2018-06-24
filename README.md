@@ -26,7 +26,8 @@ Simply download the latet copy of the backup wizard and place the file called **
 
 **Note:** The wizard will create a configuration file after everything was setup initially. The configuration file is located at /usr/local/bin/backup-wizard.cfg by default (can be changed within **backup-wizard.sh**) and is only readable by the root-user.
 
-**Also Note:** Passwords for remote backups will also stored within this file. Once a configuration file exists, the wizard will not be shown again and rerunning the file triggers the backup with the previously defined bnackup settings.
+**Also Note:** Passwords for remote backups will also stored within this file. Once a configuration file exists, the wizard will not be shown again and rerunning the file triggers the backup with the previously defined backup settings.
+Recommendation: Use ssh-keys for auth + dummy-passwords
 
 # CLI optional parameters
 - **--help | -h:** View appliactions help information
