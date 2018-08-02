@@ -1,10 +1,10 @@
 # Tufin Backup Wizard (v. 1.7.6)
-Automating backups for Tufin Orchestration Suite as well as automatically cleaning up older backups from your backup storage is not a builtin feature in Tufin. This appliaction has been developed to make your life easier and solve some of the most common backup requirements of Tufin customers. The Tufin Backups Wizard is a script that enables you to easily realize the backup you intended. You can setup local Tufin backups as well as backups that get saved to remote servers via FTP and SCP.
+Automating backups for Tufin Orchestration Suite as well as automatically cleaning up older backups from your backup storage is not a builtin feature in Tufin. This appliaction has been developed to make your life easier and solve some of the most common backup requirements of Tufin customers. The Tufin Backups Wizard enables you to create the backups you intended to create. You can setup local Tufin backups as well as backups that get saved to remote servers via FTP and SCP.
 
-When the appliaction is run for the first time it will guide you through the setup process. After the initial setup has been completed, you can create a cronjob that will run the script periodically and by that create your automated local or remote Tufin backups.
+When the application is run for the first time it will guide you through the setup process. After the initial setup has been completed, you can create a cronjob that will run the script periodically and by that create your automated local or remote Tufin backups. The wizard will also guide you through the creation of the correct cronjob.
 
 # Disclaimer
-Tufin Backup Wizard is a Third-Party solution and is not supported by Tufin. Feel free to contribute to this project by sending pull-requests to this repository. If you like to contribute to this project, please create your own branch and name it as the feature you intend to add.
+Tufin Backup Wizard is a Third-Party solution and is not supported by Tufin itself. Feel free to contribute to this project by sending pull-requests to this repository. If you like to contribute to this project, please create your own branch and name it as the feature you intend to add.
 
 # Tufin Backup Wizard Capabilities
 - Create local Tufin backups (create and save backups on your Tufin server)
@@ -24,16 +24,16 @@ Simply download the latet copy of the backup wizard and place the file called **
 4. Also make sure to set the correct permissions: **chmod 750 /usr/local/bin/backup-wizard.sh**
 5. **Finally:** Run the wizard and follow the instructions: **sh /usr/local/bin/backup-wizard.sh**
 
-**Note:** The wizard will create a configuration file after everything was setup initially. The configuration file is located at /usr/local/bin/backup-wizard.cfg by default (can be changed within **backup-wizard.sh**) and is only readable by the root-user.
+**Note:** The wizard will create a configuration file after it was run successfully. The configuration file is located at /usr/local/bin/backup-wizard.cfg by default. This location can be changed within the **backup-wizard.sh** itself. The configuration file is only readable by the root-user so that secret information is hidden for other users.
 
-**Also Note:** Passwords for remote backups will also stored within this file. Once a configuration file exists, the wizard will not be shown again and rerunning the file triggers the backup with the previously defined bnackup settings.
+**Also Note:** Passwords for remote backups will also be stored within the configuration file. Once a configuration file exists, the wizard will not be shown again and rerunning **backup-wizard.sh** triggers the backup process with the previously defined bnackup settings. However using the following options you can show the currently configured settings, rerun the wizard, add or remove cronjobs or completely remove the configuration file.
 
 # CLI optional parameters
 - **--help | -h:** View appliactions help information
 - **--reconfigure | -r:** Rerun wizard and overwrite the existing backup settings
 - **--show-configuration | -s:** Show current backup settings
 - **--delete-configuration | -d:** Delete current backup settings including configuration file
-- **---add-cronjob | -c:** Create or overwrite an existing cronjob in root users crontab
+- **--add-cronjob | -c:** Create or overwrite an existing cronjob in root users crontab
 - **--delete-cronjob | -e:** Erase backup cronjobs that are referenced to this script
 
 # Screenshots
@@ -46,7 +46,7 @@ Running the script after configuration
 Reconfiguring the backup using --reconfigure
 ![Rerunning the wizard](https://github.com/nicolaswehmeyer/tufin-backup-wizard/blob/master/wizard-reconfigure.png)
 
-# Supported versions
+# Tested versions
 The script has been verified to work within the following Tufin environments:
-- TufinOS: 2.13 / 2.14 / 2.15
-- Tufin Orchestration Suite (TOS): R16-4 / R17-1 / R17-2 / R17-3
+- TufinOS: 2.13 / 2.14 / 2.15 / 2.16
+- Tufin Orchestration Suite (TOS): R16-4 / R17-1 / R17-2 / R17-3 / R18-1
