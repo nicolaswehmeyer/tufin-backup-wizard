@@ -178,6 +178,17 @@ setup_wizard() {
 	then
 		echo -en "$(log_timestamp_info) Please specify the destination folder for your backups. Example: Type \"/your/folder/\" and press [ENTER]. Default is \"/root/\": "
 		read BACKUP_DIR
+
+		case $BACKUP_DIR in
+		*/)
+		    echo -e "$(log_timestamp_info) Path check passed successfully."
+		    ;;
+		*)
+		    echo -e "$(log_timestamp_error) You provided a path without a trailing slash, aborting. Please try again."
+			exit 1
+		    ;;
+		esac
+
 		if [ -z ${BACKUP_DIR} ]
 		then
 			echo -e "$(log_timestamp_info) You haven't specified a custom backup directory. Backups will be saved to \"/root\"/"
