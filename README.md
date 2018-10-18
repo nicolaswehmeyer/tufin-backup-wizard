@@ -49,4 +49,4 @@ Reconfiguring the backup using --reconfigure
 # Tested versions
 The script has been verified to work within the following Tufin environments:
 - TufinOS: 2.13 / 2.14 / 2.15 / 2.16
-- Tufin Orchestration Suite (TOS): R16-4 / R17-1 / R17-2 / R17-3 / R18-1
+- Tufin Orchestration Suite (TOS): R16-4 / R17-1 / R17-2 / R17-3 / R18-1 / R18-2
