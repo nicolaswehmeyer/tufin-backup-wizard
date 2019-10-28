@@ -1,4 +1,4 @@
-# Tufin Backup Wizard (v. 1.7.6)
+# Tufin Backup Wizard (v. 1.7.7)
 Automating backups for Tufin Orchestration Suite as well as automatically cleaning up older backups from your backup storage is not a builtin feature in Tufin. This appliaction has been developed to make your life easier and solve some of the most common backup requirements of Tufin customers. The Tufin Backups Wizard enables you to create the backups you intended to create. You can setup local Tufin backups as well as backups that get saved to remote servers via FTP and SCP.
 
 When the application is run for the first time it will guide you through the setup process. After the initial setup has been completed, you can create a cronjob that will run the script periodically and by that create your automated local or remote Tufin backups. The wizard will also guide you through the creation of the correct cronjob.
@@ -49,4 +49,4 @@ Reconfiguring the backup using --reconfigure
 # Tested versions
 The script has been verified to work within the following Tufin environments:
 - TufinOS: 2.13 / 2.14 / 2.15 / 2.16
-- Tufin Orchestration Suite (TOS): R16-4 / R17-1 / R17-2 / R17-3 / R18-1 / R18-2
+- Tufin Orchestration Suite (TOS): R16-4 / R17-1 / R17-2 / R17-3 / R18-1 / R18-2 / R18-3
