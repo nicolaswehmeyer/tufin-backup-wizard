@@ -684,7 +684,7 @@ scp_transfer() {
 		/usr/local/st/expect -c "
 			log_user 1
 			set timeout -1
-			spawn scp /tmp/tos-backup-${VER}-${TIME}_${DATE}.zip ${USERNAME}@${SERVER}:${BACKUP_DIR}.
+			spawn scp -o LogLevel=error /tmp/tos-backup-${VER}-${TIME}_${DATE}.zip ${USERNAME}@${SERVER}:${BACKUP_DIR}.
 			expect {
 				es/no { send yes\r; exp_continue }
 				assword: { send ${PASSWORD}\r }
@@ -711,7 +711,7 @@ scp_transfer() {
 		/usr/local/st/expect -c "
 			log_user 1
 			set timeout -1
-			spawn scp /tmp/${BACKUP_FILE_PREFIX}-tos-backup-${VER}-${TIME}_${DATE}.zip ${USERNAME}@${SERVER}:${BACKUP_DIR}.
+			spawn scp -o LogLevel=error /tmp/${BACKUP_FILE_PREFIX}-tos-backup-${VER}-${TIME}_${DATE}.zip ${USERNAME}@${SERVER}:${BACKUP_DIR}.
 			expect {
 				es/no { send yes\r; exp_continue }
 				assword: { send ${PASSWORD}\r }
