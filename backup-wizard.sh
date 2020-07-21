@@ -1,7 +1,7 @@
 #!/bin/sh
 # Script provided by Tufin, Nicolas Wehmeyer, Professional Services Consultant
 # Disclaimer: This script is a third-party development and is not supported by Tufin. Use it at your own risk
-# Version: 1.7.7
+# Version: 1.7.8
 
 ###							           ###
 ##### When needed, change the config and log file locations here #####
@@ -577,7 +577,7 @@ create_backup() {
 		### Transfer backup file using FTP
 		elif [ ${BACKUP_MODE} == "ftp" ]
 		then
-			ftp_transfers
+			ftp_transfer
 		else
 			echo -e "$(log_timestamp_error) No backup mode defined. Please set backup mode (local/ftp/scp)"
 			exit
