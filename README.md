@@ -1,5 +1,9 @@
 # Changelog
-- 1.7.8 - Fixed FTP transfer: In version 1.7.6 and 1.7.7 (potentially also in older versions) I mistakenly broke the ftp transfer by calling the wrong function (due to some typo). This has been fixed in this version. Thanks to Jas Gujral for spotting this and informing me so I could fix it.
+- 1.7.8
+- - Fixed FTP transfer: In version 1.7.6 and 1.7.7 (potentially also in older versions) I mistakenly broke the ftp transfer by calling the wrong function (due to some typo). This has been fixed in this version. Thanks to Jas Gujral for spotting this and informing me so I could fix it
+- - Tested solution on new TufinOS and TOS versions. Thanks to the Tufin Professional Services team for giving feedback on this
+- - Added functionality to check if user provided paths with or without trailing slashes. Many thanks to [asainsbury](https://github.com/asainsbury)
+- - Added security related comments to this readme. Many thanks to [TabTwo](https://github.com/TabTwo)
 
 # Tufin Backup Wizard
 Automating backups for Tufin Orchestration Suite as well as automatically cleaning up older backups from your backup storage is not a builtin feature in Tufin. This appliaction has been developed to make your life easier and solve some of the most common backup requirements of Tufin customers. The Tufin Backups Wizard enables you to create the backups you intended to create. You can setup local Tufin backups as well as backups that get saved to remote servers via FTP and SCP.
@@ -29,7 +33,7 @@ Simply download the latet copy of the backup wizard and place the file called **
 
 **Note:** The wizard will create a configuration file after it was run successfully. The configuration file is located at /usr/local/bin/backup-wizard.cfg by default. This location can be changed within the **backup-wizard.sh** itself. The configuration file is only readable by the root-user so that secret information is hidden for other users.
 
-**Also Note:** Passwords for remote backups will also be stored within the configuration file. Once a configuration file exists, the wizard will not be shown again and rerunning **backup-wizard.sh** triggers the backup process with the previously defined bnackup settings. However using the following options you can show the currently configured settings, rerun the wizard, add or remove cronjobs or completely remove the configuration file.
+Once a configuration file exists, the wizard will not be shown again and rerunning **backup-wizard.sh** triggers the backup process with the previously defined backup settings. However using the following options you can show the currently configured settings, rerun the wizard, add or remove cronjobs or completely remove the configuration file.
 
 # CLI optional parameters
 - **--help | -h:** View appliactions help information
@@ -38,6 +42,8 @@ Simply download the latet copy of the backup wizard and place the file called **
 - **--delete-configuration | -d:** Delete current backup settings including configuration file
 - **--add-cronjob | -c:** Create or overwrite an existing cronjob in root users crontab
 - **--delete-cronjob | -e:** Erase backup cronjobs that are referenced to this script
+
+**Security Note:** Passwords for remote backups will be stored within the configuration file. It is highly recommended to use ssh-key based authentication and to then provide a dummy-password for the wizard to run successfully. Key-based authentication provides a higher level of security than a password.
 
 # Screenshots
 Running tha wizard
@@ -51,5 +57,5 @@ Reconfiguring the backup using --reconfigure
 
 # Tested TufinOS and TOS versions
 The script has been verified to work within the following Tufin environments:
-- TufinOS: 2.13 / 2.14 / 2.15 / 2.16 / 2.17 / 2.18 / 2.19 / 2.20
-- Tufin Orchestration Suite (TOS): R16-4 / R17-1 / R17-2 / R17-3 / R18-1 / R18-2 / R18-3 / R19-1 / R19-2 / R19-3
+- TufinOS: 2.13 / 2.14 / 2.15 / 2.16 / 2.17 / 2.18 / 2.19 / 2.20 / 2.21
+- Tufin Orchestration Suite (TOS): R16-4 / R17-1 / R17-2 / R17-3 / R18-1 / R18-2 / R18-3 / R19-1 / R19-2 / R19-3 / R20-1
