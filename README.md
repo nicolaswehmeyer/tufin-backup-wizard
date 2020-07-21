@@ -1,5 +1,5 @@
 # Changelog
-- 1.7.8
+- Version 1.7.8
   - Fixed FTP transfer: In version 1.7.6 and 1.7.7 (potentially also in older versions) I mistakenly broke the ftp transfer by calling the wrong function (due to some typo). This has been fixed in this version. Thanks to Jas Gujral for spotting this and informing me so I could fix it
   - Tested solution on new TufinOS and TOS versions. Thanks to the Tufin Professional Services team for giving feedback on this
   - Added functionality to check if user provided paths with or without trailing slashes. Many thanks to [asainsbury](https://github.com/asainsbury)
