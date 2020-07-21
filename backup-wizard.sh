@@ -1,7 +1,7 @@
 #!/bin/sh
 # Script provided by Tufin, Nicolas Wehmeyer, Professional Services Consultant
 # Disclaimer: This script is a third-party development and is not supported by Tufin. Use it at your own risk
-# Version: 1.7.6
+# Version: 1.7.8
 
 ###							           ###
 ##### When needed, change the config and log file locations here #####
@@ -577,7 +577,7 @@ create_backup() {
 		### Transfer backup file using FTP
 		elif [ ${BACKUP_MODE} == "ftp" ]
 		then
-			ftp_transfers
+			ftp_transfer
 		else
 			echo -e "$(log_timestamp_error) No backup mode defined. Please set backup mode (local/ftp/scp)"
 			exit
@@ -684,7 +684,7 @@ scp_transfer() {
 		/usr/local/st/expect -c "
 			log_user 1
 			set timeout -1
-			spawn scp /tmp/tos-backup-${VER}-${TIME}_${DATE}.zip ${USERNAME}@${SERVER}:${BACKUP_DIR}.
+			spawn scp -o LogLevel=error /tmp/tos-backup-${VER}-${TIME}_${DATE}.zip ${USERNAME}@${SERVER}:${BACKUP_DIR}.
 			expect {
 				es/no { send yes\r; exp_continue }
 				assword: { send ${PASSWORD}\r }
@@ -711,7 +711,7 @@ scp_transfer() {
 		/usr/local/st/expect -c "
 			log_user 1
 			set timeout -1
-			spawn scp /tmp/${BACKUP_FILE_PREFIX}-tos-backup-${VER}-${TIME}_${DATE}.zip ${USERNAME}@${SERVER}:${BACKUP_DIR}.
+			spawn scp -o LogLevel=error /tmp/${BACKUP_FILE_PREFIX}-tos-backup-${VER}-${TIME}_${DATE}.zip ${USERNAME}@${SERVER}:${BACKUP_DIR}.
 			expect {
 				es/no { send yes\r; exp_continue }
 				assword: { send ${PASSWORD}\r }
