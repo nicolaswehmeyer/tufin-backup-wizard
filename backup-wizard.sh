@@ -774,4 +774,3 @@ done
 
 ### Run the backup script in correct order
 initialize_backup
-
