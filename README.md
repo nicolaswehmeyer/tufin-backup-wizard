@@ -1,9 +1,9 @@
 # Changelog
 **Version 1.7.8**
-* Fixed FTP transfer: In version 1.7.6 and 1.7.7 (potentially also in older versions) I mistakenly broke the ftp transfer by calling the wrong function (due to some typo). This has been fixed in this version. Thanks to Jas Gujral for spotting this and informing me so I could fix it
-* Tested solution on new TufinOS and TOS versions. Thanks to the Tufin Professional Services team for giving feedback on this
-* Added functionality to check if user provided paths with or without trailing slashes. Many thanks to [asainsbury](https://github.com/asainsbury)
-* Added security related comments to this readme. Many thanks to [TabTwo](https://github.com/TabTwo)
+- [x] Fixed FTP transfer: In version 1.7.6 and 1.7.7 (potentially also in older versions) I mistakenly broke the ftp transfer by calling the wrong function (due to some typo). This has been fixed in this version. Thanks to Jas Gujral for spotting this and informing me so I could fix it
+- [x] Tested solution on new TufinOS and TOS versions. Thanks to the Tufin Professional Services team for giving feedback on this
+- [x] Added functionality to check if user provided paths with or without trailing slashes. Many thanks to [asainsbury](https://github.com/asainsbury)
+- [x] Added security related comments to this readme. Many thanks to [TabTwo](https://github.com/TabTwo)
 
 # Tufin Backup Wizard
 Automating backups for Tufin Orchestration Suite as well as automatically cleaning up older backups from your backup storage is not a builtin feature in Tufin. This appliaction has been developed to make your life easier and solve some of the most common backup requirements of Tufin customers. The Tufin Backups Wizard enables you to create the backups you intended to create. You can setup local Tufin backups as well as backups that get saved to remote servers via FTP and SCP.
