@@ -6,7 +6,7 @@
 - [x] Added security related comments to this readme. Many thanks to [TabTwo](https://github.com/TabTwo)
 
 # Tufin Backup Wizard
-Automating backups for Tufin Orchestration Suite as well as automatically cleaning up older backups from your backup storage is not a builtin feature in Tufin. This appliaction has been developed to make your life easier and solve some of the most common backup requirements of Tufin customers. The Tufin Backup Wizard enables you to create the backups you intended to create of your Tufin Orchestration Suite. You can setup local Tufin backups as well as backups that get saved to remote servers via FTP and SCP.
+Automating backups for Tufin Orchestration Suite (TOS Classic only) as well as automatically cleaning up older backups from your backup storage is not a builtin feature in Tufin. This appliaction has been developed to make your life easier and solve some of the most common backup requirements of Tufin customers. The Tufin Backup Wizard enables you to create the backups you intended to create of your Tufin Orchestration Suite. You can setup local Tufin backups as well as backups that get saved to remote servers via FTP and SCP.
 
 When the application is run for the first time it will guide you through the setup process. After the initial setup has been completed, you can create a cronjob that will run the script periodically and by that create your automated local or remote Tufin backups. The wizard will also guide you through the creation of the correct cronjob.
 
@@ -14,14 +14,14 @@ When the application is run for the first time it will guide you through the set
 Tufin Backup Wizard is a Third-Party solution and is not supported by Tufin itself. Feel free to contribute to this project by sending pull-requests to this repository. If you like to contribute to this project, please create your own branch and name it as the feature you intend to add.
 
 # Tufin Backup Wizard Capabilities
-- Create local Tufin backups (create and save backups on your Tufin server)
+- Create local Tufin backups (create and save backups on your Tufin TOS Classic server)
 - Define prefixes for your backup files (usefull if many Tufin servers create backup files within the same directory)
 - Automatically delete older backups within your local storage (the script will not remove any files on remote servers)
 - Create remote Tufin backups via FTP
 - Create remote Tufin backups via SCP
 
 # Prerequisites
-A Tufin installation containing TufinOS with TOS (Tufin Orchestration Suite) installed is required. For remote backups make sure that the user has the required permissions to store data on a remote server.
+A Tufin installation containing TufinOS with TOS (Tufin Orchestration Suite) Classic installed is required. For remote backups make sure that the user has the required permissions to store data on a remote server. The solution hasn't been tested with TOS Aurora, and due to TOS Aurora's new architecture, will most likely fail.
 
 # Quickstart
 Simply download the latet copy of the backup wizard and place the file called **backup-wizard.sh** on your Tufin Server:
